@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+/* Estilizando a barra de rolagem vertical */
+::-webkit-scrollbar {
+    width: 10px; /* Largura da barra de rolagem */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #000000a8; /* Cor do indicador da barra de rolagem */
+    border-radius: 100px;
+}
+
+.bg-atack-objective {
+    background-color: rgb(220 38 38);
+}
+
+.bg-atack-champion {
+    background-color: rgb(34 197 94);
+}

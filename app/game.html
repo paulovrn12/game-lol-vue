@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./images/icon/jungle.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./game.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <title>Warwick vs. Na'shor</title>
+</head>
+<body>
+    <div id="game">
+        <div id="game_not_started" v-if="!gameStart && !gameFinished" class="flex h-screen items-center justify-center bg-gradient-to-r from-sky-700 to-green-900 flex flex-col">
+            <button class="bg-stone-500 bg-opacity-20 px-4 py-2 rounded-md border-4 border-stone-500" @click="gameStart = !gameStart">
+                <strong class="text-white">START</strong>
+            </button>
+        </div>
+
+        <div id="game_started" v-else-if="gameStart && !gameFinished" class="flex h-screen items-center justify-center bg-gradient-to-r from-sky-700 to-green-900 flex flex-col">
+            <div class="rounded-md text-purple-400 border-4 border-stone-500 bg-stone-500 bg-opacity-50 p-2 space-x-2">
+                <a href="https://www.paulovictorrn.com.br/" target="_blank" class="italic">Site do criador</a>
+                <a href="https://github.com/paulovrn12" target="_blank" class="italic">Github do criador</a>
+            </div>
+            <div>
+                <div class="rounded-md border-4 border-stone-500 mt-2 p-2  bg-stone-500 bg-opacity-50 text-red-500"><strong>Turno {{ turnNumber }}</strong></div>
+            </div>
+            <div>
+                <div id="view" class=" flex rounded-md m-2 border-2 border-stone-500 border-4">
+                    <!-- Map Lair Baron-->
+                    <div id="map" class="relative flex bg-black w-[400px] h-[300px] bg-[url('./images/map/map_baron.png')] bg-cover bg-center bg-no-repeat">
+
+                        <!-- Warwick model -->
+                        <div id="warwick_model" class="w-20 absolute top-[150px] left-[110px]">
+                            <img src="./images/champions/warwick/warwick_model.png" class="">
+                        </div>
+
+                        <!-- Na'shor model -->
+                        <div id="nashor_model" class="w-48 absolute left-[120px]">
+                            <img src="./images/objective/nashor/nashor_model.png">
+                        </div>
+                    </div>
+                    <div id="options" class="bg-white w-80 w-[400px] bg-opacity-20">
+                        <div id="log_title" class="text-center p-2 ">
+                            <strong>Logs de batalha</strong>
+                        </div>
+                        <div id="logs" class="p-2 overflow-x-auto h-[260px]">
+                            <ul>
+                                <li v-for="(value, index) in historyTurns">
+                                    <div class="list-none rounded-md w-full mb-2 bg-black h-8 bg-opacity-20 flex items-center p-2">
+                                        <p class="flex text-xs items-center text-stone-300">{{ value.attacker }} usou {{ value.ability }} e causou {{ value.atack }} <img src="./images/symbology/attack_damage.png" class="mx-1 h-3 w-3 botton-0"> e curou {{ value.cure }} <img src="./images/symbology/health_regeneration.png" class="mx-1 h-3 w-3"></p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex border-stone-500 border-4 rounded-md">
+                <div id="hud_nashor" class="relative bg-stone-500 bg-opacity-50 w-[400px]">
+                    <div class="flex items-center">
+                        <!-- Objective Icon -->
+                        <div id="icon_champion" class="w-16 border-4 rounded-full border-stone-500 m-2">
+                            <img src="./images/objective/nashor/nashor_icon.png" class="rounded-full">
+                        </div>
+
+                        <!-- Life bar 12000pts-->
+                        <div id="life_bar" class="flex items-center">
+                            <div class="bg-red-600 h-8 m-2 text-white text-center content-center border-4 border-stone-500 absolute right-0 w-[280px]">
+                                <strong>{{ lifeObjective }} / 12000</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="hud_warwick" class="relative bg-stone-500 bg-opacity-50 w-[400px]">
+                    <div class="flex items-center">
+                        <!-- Warwick Icon -->
+                        <div id="icon_champion" class="w-16 border-4 rounded-full border-stone-500 m-2">
+                            <img src="./images/champions/warwick/warwic_icon.png" class="rounded-full">
+                        </div>
+
+                        <!-- Life bar 12000pts-->
+                        <div id="life_bar" class="flex items-center">
+                            <div class="bg-green-500 h-8 m-2 text-white text-center content-center border-4 border-stone-500 absolute right-0 w-[280px]">
+                                <strong>{{ lifeChampion }} / 4000</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <!-- Spells -->
+            <div id="spells" class="flex m-2 space-x-2.5 right-2">
+                <!-- Auto Atack -->
+                <button id="a_spell" @click="executeAspell()" class="relative w-12 h-12 bg-[url('./images/champions/warwick/spells/warwick_auto-atack.png')] bg-cover bg-center bg-no-repeat rounded-md border-4 border-stone-500">
+                    <strong class="text-white absolute -bottom-2 -left-1">A</strong>
+                </button>
+
+                <!-- Spell Q -->
+                <button id="q_spell" @click="executeQspell()" class="relative w-12 h-12 bg-[url('./images/champions/warwick/spells/warwick_q.png')] bg-cover bg-center bg-no-repeat rounded-md border-4 border-stone-500">
+                    <strong class="text-white absolute -bottom-2 -left-1">Q</strong>
+                </button>
+
+                <!-- Spell W -->
+                <button id="w_spell" @click="executeWspell()" class="relative w-12 h-12 bg-[url('./images/champions/warwick/spells/warwick_w.png')] bg-cover bg-center bg-no-repeat rounded-md border-4 border-stone-500">
+                    <strong class="text-white absolute -bottom-2 -left-1">W</strong>
+                </button>
+
+                <!-- Spell E -->
+                <button id="e_spell" @click="executeEspell()" class="relative w-12 h-12 bg-[url('./images/champions/warwick/spells/warwick_e.png')] bg-cover bg-center bg-no-repeat rounded-md border-4 border-stone-500">
+                    <strong class="text-white absolute -bottom-2 -left-1">E</strong>
+                </button>
+
+                <!-- Spell R -->
+                <button id="r_spell" @click="executeRspell()" class="relative w-12 h-12 bg-[url('./images/champions/warwick/spells/warwick_r.png')] bg-cover bg-center bg-no-repeat rounded-md border-4 border-stone-500">
+                    <strong class="text-white absolute -bottom-2 -left-1">R</strong>
+                </button>
+            </div>
+        </div>
+
+        <div id="game_finished" v-else class="flex h-screen items-center justify-center bg-gradient-to-r from-sky-700 to-green-900 flex flex-col">
+            <div class="bg-stone-500 bg-opacity-20 px-4 py-2 m-2 border-4 border-stone-500">
+                <strong>{{ statusOfGame }}</strong>
+            </div>
+            <button class="bg-stone-500 bg-opacity-20 px-4 py-2 rounded-md border-4 border-stone-500" @click="">
+                <strong class="text-white">PLAY AGAIN</strong>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
+<script src="./game.js"></script>
